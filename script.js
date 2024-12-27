@@ -72,12 +72,14 @@ class wire {
        topnumber + "px";
         
       document.body.appendChild(div);
+
     }
   }
 }
 
 var wires = [];
 var wireState = "on";
+var switchState = "on"
 var currentWire = null;
 var mouseX = 0;
 var mouseY = 0;
@@ -88,14 +90,16 @@ document.onmousemove = function (e) {
 };
 //create a function that fires every render frame to see if there is a change in the wires array
 function render() {
-  $(".wire").remove();
-    $(".wirePiece").remove();
+  //remove all .wire elements that has not the "attached class"
+  // $(".wire:not(.connected)").remove()
+  // $(".wire").remove();
+    $(".wirePiece:not(.connected) ").remove();
 
   requestAnimationFrame(render);
   if(wires.length >0){
   wires.forEach((wire) => {
     if(wire.state === "delete"){
-      wire.div.remove();
+      
       wires.splice(wires.indexOf(wire), 1);
     }
     if (wire.state==="move") {
@@ -114,19 +118,32 @@ $(document).ready(function () {
 
   $(".port").click(function (e) {
     if(wireState ==="on"){
-    wireState = "off"
     var coord1 = [e.pageX, e.pageY];
     var wire1 = new wire(coord1, coord1);
-    wire1.drawWire();
+    wire1.state = "move"
+    // wire1.drawWire();
     wires.push(wire1);
+    // wireState = "off";
     }
-    if(wireState ==="off"){
-      wireState = "on"
-      var coord2 = [e.pageX, e.pageY];
-      wires[wires.length - 1].coord2 = coord2;
-      wires[wires.length - 1].draw
-    }
+    // if(wireState ==="off"){
+    //   var coord2 = [e.pageX, e.pageY];
+    //   wires.pop();
+    //   // wires[wires.length - 1].coord2 = coord2;
+    //   wires[wires.length - 1].draw
+    //   wireState = "on";
+    // }
   });
+
+  $(".port2").click(function(e){
+    $(".wirePiece").addClass("connected");
+    console.log("connected wire")
+    console.log($(".wire"));
+    wires.forEach(
+      wire=>{
+        wire.state="delete";
+      }
+    )
+  })
 
 
 })
