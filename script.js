@@ -30,6 +30,13 @@ class wire {
   }
   //create function draw wire curved that draws a curved wire with 50 small divs instead of a line
   drawWireCurved() {
+  //  let divBig = document.createElement("div");
+  //  divBig.className = "wire";
+  let divBigs = document.getElementsByClassName("wire");
+  // console.log(divBigs);
+  //select the last wire div
+  let divBig = divBigs[divBigs.length - 1];
+  // console.log(divBig);
     let x1 = this.coord1[0];
     let y1 = this.coord1[1];
     let x2 = this.coord2[0];
@@ -62,17 +69,16 @@ class wire {
       var topnumber =
         y1 +
         ((y2 - y1) / numberOfCurves) * i 
-        
         +
         Math.sin(12.5 * i) * -250;
         if(i>numberOfCurves*.9&&topnumber < y2){
           topnumber = y2;
         }
-      div.style.top =
+        div.style.top =
        topnumber + "px";
-        
-      document.body.appendChild(div);
-
+       if(divBig){
+       divBig.appendChild(div)
+       }
     }
   }
 }
@@ -90,24 +96,17 @@ document.onmousemove = function (e) {
 };
 //create a function that fires every render frame to see if there is a change in the wires array
 function render() {
-  //remove all .wire elements that has not the "attached class"
-  // $(".wire:not(.connected)").remove()
-  // $(".wire").remove();
-    $(".wirePiece:not(.connected) ").remove();
-
+  $(".wirePiece:not(.connected) ").remove();
   requestAnimationFrame(render);
   if(wires.length >0){
   wires.forEach((wire) => {
     if(wire.state === "delete"){
-      
       wires.splice(wires.indexOf(wire), 1);
     }
     if (wire.state==="move") {
       wire.coord2 = [mouseX, mouseY];
       wire.drawWireCurved();
     }
-    // wire.drawWire();
-    // wire.drawwireHeads();
   });
   }
 }
@@ -120,6 +119,9 @@ $(document).ready(function () {
     if(wireState ==="on"){
     var coord1 = [e.pageX, e.pageY];
     var wire1 = new wire(coord1, coord1);
+    let divBig = document.createElement("div");
+    divBig.className = "wire";
+    document.body.appendChild(divBig);
     wire1.state = "move"
     // wire1.drawWire();
     wires.push(wire1);
@@ -135,9 +137,13 @@ $(document).ready(function () {
   });
 
   $(".port2").click(function(e){
+    //get the last wire in the wires array
+    var wire = wires[wires.length-1];
+    //set the state of the wire to connected
+    $(".wire").addClass("connected");
     $(".wirePiece").addClass("connected");
-    console.log("connected wire")
-    console.log($(".wire"));
+    // console.log("connected wire")
+    // console.log($(".wire"));
     wires.forEach(
       wire=>{
         wire.state="delete";
@@ -147,3 +153,37 @@ $(document).ready(function () {
 
 
 })
+
+function flashingWires(){
+
+  var gradientColors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"];
+  setInterval(() => {
+
+    gradientColors.unshift(gradientColors.pop());
+      var wires = $(".wire");
+      // console.log(wires);
+      wires = Array.from(wires);
+      console.log(wires);
+      wires.forEach((wire, index) => {
+        let connectedWirePieces = wire.getElementsByClassName("connected");
+        if(index!== wires.length-1 && connectedWirePieces.length === 0){
+          wire.remove();
+        }
+        setTimeout(() => {
+          // console.log(connectedWirePieces);
+          for (let j = 0; j < connectedWirePieces.length; j++) {
+            //do this for each of the wire instances
+
+            setTimeout(() => {
+              connectedWirePieces[j].style.backgroundColor =
+                gradientColors[index % gradientColors.length];
+            }, 20 * j);
+          }
+        }, index * 1000);
+      });
+  }, 1000);
+
+
+}
+
+flashingWires();
